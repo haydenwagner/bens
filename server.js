@@ -1,16 +1,18 @@
 "use strict";
 
-const express = require('express');
-const tlsAsana = require('tls-asana');
-
 const ASANA_PROJECT_ID = '196673359742158';
 
-let app = express();
+//const express = require('express');
+var tlsAsana = require('tls-asana');
 
-//need to make an http server instance here to pass to Socket.io 
-//(otherwise we would be good with the express instance)
-let server = require('http').Server(app);
-let io = require('socket.io')(server);
+
+
+var app = require('express')();
+//need to make an http server instance for our Socket.io server to 'integrate with or mount on'
+let http = require('http').Server(app);
+let io = require('socket.io')(http);
+
+
 
 let tlsAsanaPromise = tlsAsana.connect(ASANA_PROJECT_ID);
 tlsAsanaPromise.then(()=>{

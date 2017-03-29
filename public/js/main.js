@@ -8,7 +8,12 @@ var socket = io.connect(originURL, {
     path: socketPath + 'socket.io/'
 });
 
-socket.on('connected', function(data){
+socket.on('connected', function(taskData){
+    addTaskCards(taskData.data)
+});
+
+socket.on('tasks-sent', function(data){
+    console.log('tasks sent post connection');
     console.log(data);
 })
 
@@ -24,15 +29,14 @@ socket.on('getTaskCSVStuffFailure', function(err,res){
 
 //------------------
 
-$(function(){
-    var tempTaskArr = [1,2,3,4,5];
+function addTaskCards(data){
     var container = $('#main');
 
-    tempTaskArr.forEach(function(x){
-        var card = `<div class="card tlsTask float-left" style="width: 20rem;">
+    data.forEach(function(x){
+        var card = `<div class="card tlsTask">
                         <div class="card-block">
-                            <h4 class="card-title">Task `+ x +`</h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <h5 class="card-title">Task `+ x.name +`</h5>
+                            <p class="card-text">` + x['created_at'] + `</p>
                             <a href="#" class="btn btn-primary tlsTaskBtn" tlstaskdata="`+ x +`">Go somewhere</a>
                         </div>
                     </div>`
@@ -43,4 +47,4 @@ $(function(){
     $('.tlsTaskBtn').on('click', function(){
         socket.emit('request-task', {'id': this.getAttribute('tlstaskdata')})
     })
-}());
+}

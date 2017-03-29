@@ -2,30 +2,37 @@
 
 const ASANA_PROJECT_ID = '196673359742158';
 
-//const express = require('express');
 var tlsAsana = require('tls-asana');
+var express = require('express');
 
-
-
-var app = require('express')();
+var app = express();
 //need to make an http server instance for our Socket.io server to 'integrate with or mount on'
-let http = require('http').Server(app);
-let io = require('socket.io')(http);
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
 
-
-let tlsAsanaPromise = tlsAsana.connect(ASANA_PROJECT_ID);
-tlsAsanaPromise.then(()=>{
+var tlsAsanaPromise = tlsAsana.connect(ASANA_PROJECT_ID);
+tlsAsanaPromise.then(res=>{
     console.log('Asana connected');
+    console.log(res.me.workspaces);
 });
 
-app.use(express.static(__dirname));
-server.listen(8004);
+app.use(express.static('public'));
+
+app.get('/', function(req,res){
+    res.sendFile(__dirname + '/index.html');
+});
+
+http.listen(8004);
 
 io.on('connection', function(socket){
     console.log('Successful socket connection -from the backend');
-    socket.emit('connected', "Backend connection response");
-
+    
+    tlsAsana.updateTasks().then(taskData=>{
+        socket.emit('connected', taskData);
+    })
+       
+    
     socket.on('request-task', (testParam) => {
         console.log('Client to server success: ' + testParam.id);
 
